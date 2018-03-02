@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-from gabor_settings import *
-from numpy import *
-import numpy
-import maxflow
-from PIL import Image
-from matplotlib import pyplot as plt
-from pylab import *
-import cv2.cv as cv
-import cv2
-import numpy as np
-import Image
-import numpy as np
+# Keep imports according to lexical order (to avoid clones).
 import colorsys
-
+import cv2
+import Image
 import maxflow
+
+import cv2.cv as cv
+import numpy as np
+
+from gabor_settings import *
+from utility import *
 from matplotlib import pyplot as plt
+from PIL import Image
+from pylab import *
 
 # TODO:
 # figure out good "segment kernel size."
@@ -59,24 +57,28 @@ def process(original_image, filters):
             cv2.waitKey(0)
     return results
 
-def grab_cut(gabor_img, original_img, rect):
+def grab_cut(gabor_img, original_img, path):
     # Initialize mask for the grab cut - all zeros.
-    mask = np.zeros(gabor_img.shape[:2], np.uint8)
-    bgdModel = np.zeros((1, 65), np.float64)
-    fgdModel = np.zeros((1, 65), np.float64)
+    final_mask = np.zeros(gabor_img.shape[:2], np.uint8)
 
-    # Use the feature matrix to create the actual masking.
-    cv2.grabCut(gabor_img, mask, rect, bgdModel, fgdModel, 2, cv.GC_INIT_WITH_RECT)
-    mask2 = np.where((mask==2) | (mask==0), 0, 1).astype('uint8')
 
-    mask = np.zeros(gabor_img.shape[:2], np.uint8)
-    bgdModel = np.zeros((1, 65), np.float64)
-    fgdModel = np.zeros((1, 65), np.float64)
-    rect2 = (0,0,300,100)
-    cv2.grabCut(gabor_img, mask, rect2, bgdModel, fgdModel, 2, cv.GC_INIT_WITH_RECT)
-    mask3 = np.where((mask==2) | (mask==0), 0, 1).astype('uint8')
+    rects = [
+        (0,0,300,100),
+        (50,100,350,500),
+    ]
 
-    final_mask = (mask3 == 1) | (mask2 == 1)
+    # For every rectangle we get from the path, do:
+    for rect in rects:
+        mask = np.zeros(gabor_img.shape[:2], np.uint8)
+        bgdModel = np.zeros((1, 65), np.float64)
+        fgdModel = np.zeros((1, 65), np.float64)
+
+        # Use the feature matrix to create the actual masking.
+        cv2.grabCut(gabor_img, mask, rect, bgdModel, fgdModel, 2, cv.GC_INIT_WITH_RECT)
+        new_mask = np.where((mask == 2) | (mask == 0), 0, 1).astype('uint8')
+
+        # Add the new discovered mask.
+        final_mask = (final_mask == 1) | (new_mask == 1)
 
     # Cut the image.
     cut_image = original_img * final_mask[:, :, np.newaxis]
