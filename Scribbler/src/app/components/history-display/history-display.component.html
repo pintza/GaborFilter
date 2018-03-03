@@ -1,0 +1,21 @@
+
+<div class="row">
+  <div class="col-lg-1"></div>
+  <div class="col-lg-10">
+    <h6> Action history</h6>
+  </div>
+  <div class="col-lg-1"></div>
+</div>
+<div class="row history-container">
+  <div class="col-lg-1"></div>
+  <div class="col-lg-7 col-sm-7 col-xs-7">
+    <ul>
+      <li *ngFor="let item of history.getHistory() | arrayReverse; let i = index" id="history-item-{{i}}">
+          <div [class.selected-history]="history.getHistory().length - i == history.currentIndex + 1">
+            {{ history.getHistory().length - i }} : {{ item.action}}
+          </div>
+      </li>
+    </ul>
+  </div>
+  <div class="col-lg-1"></div>
+</div>

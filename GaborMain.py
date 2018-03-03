@@ -41,8 +41,6 @@ def build_filters(directions):
         filters.append((kern,params))
     return filters
 
-
-
 def process(original_image, filters):
 # Process the filter on a new hue image.
     results = []
@@ -134,11 +132,10 @@ else:
 # Gaussian blur for filling the gaps
 final = cv2.GaussianBlur(final,(gaussian_blur_size, gaussian_blur_size), 0)
 
-
 # Show feature matrix.
 cv2.imshow('final', final)
 cv2.waitKey(0)
 # Grab Cut
-#                                      (x, y, x+w, y+h)
-#                           fore from scribble  back from scribble
+# (x, y, x+w, y+h)
+# fore from scribble  back from scribble
 grab_cut(final, original_image, rect)

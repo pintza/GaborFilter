@@ -1,0 +1,9 @@
+.history-container {
+  overflow-y: scroll;
+  height: 100px;
+}
+
+.selected-history {
+  font-weight: bold;
+  color: darkblue;
+}

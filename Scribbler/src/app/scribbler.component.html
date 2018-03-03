@@ -1,0 +1,34 @@
+<!-- Depends on Twitter Bootstrap! -->
+<div class="container scribbler-body">
+
+	<div class="row">
+		<div class="col-lg-4 col-sm-4 col-xs-2"></div>
+		<div class="col-lg-4 col-sm-4 col-xs-2">
+			<h3>
+				{{ title }}
+			</h3>
+		</div>
+		<div class="col-lg-4 col-sm-4 col-xs-2"></div>
+	</div>
+	<app-canvas canvasMessage="{{canvasMessage}}"></app-canvas>
+	<div class="row">
+		<div class="col-lg-3">
+			<div class="button-generic" id="scribble">scribble</div>
+		</div>
+		<div class="col-lg-3">
+			<div class="button-generic" id="direction">direction</div>
+		</div>
+		<div class="col-lg-3">
+			<div class="button-generic" #undo id="undo">undo</div>
+		</div>
+		<div class="col-lg-3">
+			<div class="button-generic" #redo id="redo">redo</div>
+		</div>
+		<div class="col-lg-3">
+			<div class="button-generic" #grayscale id="grayscale">grayscale</div>
+		</div>
+	</div>
+
+
+	<app-history-display></app-history-display>
+</div>
