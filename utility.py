@@ -5,7 +5,7 @@ import json
 # function.
 # We later add up each grab cut to a final picture.
 # @return array of rectangles in the format: x, y, width, height
-def extractRectsFromPaths(paths = []):
+def extractRectsFromPaths(json = "{\"paths\" : []}"):
 
     #FIXME
     # Currently loads a static JSON file, which can be generated with the

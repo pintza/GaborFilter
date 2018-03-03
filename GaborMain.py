@@ -2,17 +2,17 @@
 # Keep imports according to lexical order (to avoid clones).
 import colorsys
 import cv2
+import cv2.cv as cv
 import Image
 import maxflow
-
-import cv2.cv as cv
-import numpy as np
-
-from gabor_settings import *
-from utility import *
 from matplotlib import pyplot as plt
+import numpy as np
 from PIL import Image
 from pylab import *
+
+# Our code.
+from gabor_settings import *
+from utility import *
 
 # TODO:
 # figure out good "segment kernel size."
