@@ -5,13 +5,7 @@ import json
 # function.
 # We later add up each grab cut to a final picture.
 # @return array of rectangles in the format: x, y, width, height
-def extractRectsFromPaths(json = "{\"paths\" : []}"):
-
-    #FIXME
-    # Currently loads a static JSON file, which can be generated with the
-    # angular app.
-    with open("data.json") as data_file:
-        data = json.load(data_file)
+def extractRectsFromPaths(data):
 
     # Results stored in rects array.
     rects = [];
@@ -51,4 +45,5 @@ def extractRectsFromPaths(json = "{\"paths\" : []}"):
         # Add result to rects array.
         rects.append((startX, startY, width, height));
 
+    print rects
     return rects;

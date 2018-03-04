@@ -55,15 +55,13 @@ def process(original_image, filters):
             cv2.waitKey(0)
     return results
 
-def grab_cut(gabor_img, original_img, path):
+def grab_cut(gabor_img, original_img, paths):
     # Initialize mask for the grab cut - all zeros.
     final_mask = np.zeros(gabor_img.shape[:2], np.uint8)
 
+    rects = extractRectsFromPaths(paths)
 
-    rects = [
-        (0,0,300,100),
-        (50,100,350,500),
-    ]
+    rects = [(50,100,350,500)]#(0, 500, 450, 125)]
 
     # For every rectangle we get from the path, do:
     for rect in rects:
@@ -124,9 +122,9 @@ if alpha:
     channel_alpha = (thresholds[6] + thresholds[7]) / 2
     final = cv2.merge((channel_blue, channel_green, channel_red, channel_alpha))
 else:
-    channel_red = (thresholds[1] + thresholds[2]+thresholds[3]) / 3
-    channel_green = (thresholds[4] + thresholds[5]+thresholds[6]) / 3
-    channel_blue = (thresholds[7] + thresholds[0]) / 2
+    channel_red = (thresholds[2] + thresholds[3]) / 2
+    channel_green = (thresholds[5] + thresholds[4]) / 2
+    channel_blue = (thresholds[1] + thresholds[0]) / 2
     final = cv2.merge((channel_blue, channel_green, channel_red))
 
 # Gaussian blur for filling the gaps
@@ -138,4 +136,8 @@ cv2.waitKey(0)
 # Grab Cut
 # (x, y, x+w, y+h)
 # fore from scribble  back from scribble
-grab_cut(final, original_image, rect)
+
+with open("data.json") as data_file:
+    paths = json.load(data_file)
+
+grab_cut(final, original_image, paths)
