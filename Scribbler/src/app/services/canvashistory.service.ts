@@ -21,6 +21,7 @@ export class CanvasHistoryService {
       this.historyList.length = this.currentIndex + 1;
       this.historyList.push(item);
       this.currentIndex++;
+      console.log(this.getJSON());
   }
 
   public getCurrent() {
@@ -53,6 +54,33 @@ export class CanvasHistoryService {
       this.currentIndex -= steps;
     }
     return this.getCurrent();
+  }
+
+
+  public getJSON() {
+    var foreground = [];
+    // Not sure what to generate here.
+    var background = [];
+    var currentPath = [];
+
+    for (var index = 0; index < this.historyList.length; index ++) {
+      currentPath = this.historyList[index].path;
+      for (var pathIndex = 0; pathIndex < currentPath.length; pathIndex++) {
+        var currentCoordinates = currentPath[pathIndex];
+        var added = {
+          cor: {
+            x: currentCoordinates.to.x,
+            y: currentCoordinates.to.y
+          }
+        };
+        foreground.push(added);
+      }
+    }
+
+    return JSON.stringify({
+      fore: [foreground],
+      back: [background]
+    });
   }
 }
 
