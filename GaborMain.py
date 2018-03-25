@@ -57,42 +57,6 @@ def process(original_image, filters):
             cv2.waitKey(0)
     return results
 
-def grab_cut(gabor_img, original_img, paths):
-    # Initialize mask for the grab cut - all zeros.
-    final_mask = np.zeros(gabor_img.shape[:2], np.uint8)
-
-    rects = extractForeFromPaths(paths)
-    # rects examples
-    # Top of file
-    #rects = [(0,0,600,110)]
-    # Center
-    #rects = [(50,100,350,500)]
-    # Bottom
-    #rects = [(0,500,450,125)]
-    #rects = [(350, 0, 200, 600)]
-
-    # For every rectangle we get from the path, do:
-    mask = np.zeros(gabor_img.shape[:2], np.uint8)
-    for rect in rects:
-        mask[rect[0]][rect[1]] = 1
-
-
-    bgdModel = np.zeros((1, 65), np.float64)
-    fgdModel = np.zeros((1, 65), np.float64)
-    # Use the feature matrix to create the actual masking.
-    cv2.grabCut(gabor_img, mask, None, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_MASK)
-
-    new_mask = np.where((mask == 2) | (mask == 0), 0, 1).astype('uint8')
-
-    # Add the new discovered mask.
-    final_mask = (final_mask == 1) | (new_mask == 1)
-
-    # Cut the image.
-    cut_image = original_img * final_mask[:, :, np.newaxis]
-    plt.imshow(cut_image), plt.show()
-
-
-
 
 ############## MAIN ###################
 # Load image.
@@ -134,11 +98,6 @@ else:
 
 # Gaussian blur for filling the gaps
 final = cv2.GaussianBlur(final,(gaussian_blur_size, gaussian_blur_size), 0)
-# Show feature matrix.
-
-# Grab Cut
-# (x, y, x+w, y+h)
-# fore from scribble  back from scribble
 
 with open("data2.json") as data_file:
     paths = json.load(data_file)
@@ -150,7 +109,6 @@ back = scrib[1]
 eng = matlab.engine.start_matlab()
 
 cut = eng.segmentImage(filename, 'final.png', fore, back)
-#grab_cut(final, original_image, paths)
 result = cv2.imread('maskedImage.png')
 cv2.imshow('show', result)
 cv2.waitKey(0)
