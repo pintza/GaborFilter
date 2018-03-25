@@ -9,6 +9,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 from PIL import Image
 from pylab import *
+import matlab.engine
+from matplotlib import pyplot as plt
 
 # Our code.
 from gabor_settings import *
@@ -59,22 +61,31 @@ def grab_cut(gabor_img, original_img, paths):
     # Initialize mask for the grab cut - all zeros.
     final_mask = np.zeros(gabor_img.shape[:2], np.uint8)
 
-    rects = extractRectsFromPaths(paths)
-
-    rects = [(50,100,350,500)]#(0, 500, 450, 125)]
+    rects = extractForeFromPaths(paths)
+    # rects examples
+    # Top of file
+    #rects = [(0,0,600,110)]
+    # Center
+    #rects = [(50,100,350,500)]
+    # Bottom
+    #rects = [(0,500,450,125)]
+    #rects = [(350, 0, 200, 600)]
 
     # For every rectangle we get from the path, do:
+    mask = np.zeros(gabor_img.shape[:2], np.uint8)
     for rect in rects:
-        mask = np.zeros(gabor_img.shape[:2], np.uint8)
-        bgdModel = np.zeros((1, 65), np.float64)
-        fgdModel = np.zeros((1, 65), np.float64)
+        mask[rect[0]][rect[1]] = 1
 
-        # Use the feature matrix to create the actual masking.
-        cv2.grabCut(gabor_img, mask, rect, bgdModel, fgdModel, 2, cv.GC_INIT_WITH_RECT)
-        new_mask = np.where((mask == 2) | (mask == 0), 0, 1).astype('uint8')
 
-        # Add the new discovered mask.
-        final_mask = (final_mask == 1) | (new_mask == 1)
+    bgdModel = np.zeros((1, 65), np.float64)
+    fgdModel = np.zeros((1, 65), np.float64)
+    # Use the feature matrix to create the actual masking.
+    cv2.grabCut(gabor_img, mask, None, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_MASK)
+
+    new_mask = np.where((mask == 2) | (mask == 0), 0, 1).astype('uint8')
+
+    # Add the new discovered mask.
+    final_mask = (final_mask == 1) | (new_mask == 1)
 
     # Cut the image.
     cut_image = original_img * final_mask[:, :, np.newaxis]
@@ -90,7 +101,6 @@ original_image = cv2.imread(filename)
 # Gray scale
 gray_original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
 
-
 # Negate image.
 negated_image = cv2.bitwise_not(gray_original_image)
 
@@ -100,7 +110,6 @@ filtered_images = process(negated_image, filters)
 thresholds = [];
 
 for filtered_image in filtered_images:
-
     # thicken the lines
     if manipulate_gabor:
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (segment_kernel_size, segment_kernel_size))
@@ -109,11 +118,7 @@ for filtered_image in filtered_images:
         thresholds.append(threshold_image)
     else:
        thresholds.append(filtered_image)
-    """
-    if (show_step):
-        cv2.imshow('show', threshold_image)
-        cv2.waitKey(0)
-    """
+
 # Create feature matrix.
 if alpha:
     channel_red = (thresholds[0] + thresholds[1]) / 2
@@ -129,15 +134,23 @@ else:
 
 # Gaussian blur for filling the gaps
 final = cv2.GaussianBlur(final,(gaussian_blur_size, gaussian_blur_size), 0)
-
 # Show feature matrix.
-cv2.imshow('final', final)
-cv2.waitKey(0)
+
 # Grab Cut
 # (x, y, x+w, y+h)
 # fore from scribble  back from scribble
 
-with open("data.json") as data_file:
+with open("data2.json") as data_file:
     paths = json.load(data_file)
 
-grab_cut(final, original_image, paths)
+cv2.imwrite('final.png', final)
+scrib = extractFromPaths(paths, final)
+fore = scrib[0]
+back = scrib[1]
+eng = matlab.engine.start_matlab()
+
+cut = eng.segmentImage(filename, 'final.png', fore, back)
+#grab_cut(final, original_image, paths)
+result = cv2.imread('maskedImage.png')
+cv2.imshow('show', result)
+cv2.waitKey(0)
